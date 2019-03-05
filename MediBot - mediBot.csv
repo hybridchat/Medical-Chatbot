@@ -1,0 +1,267 @@
+ID,Type,Text,Goto
+1.1,Dialogue,Hi. I am MediBot.,
+1.2,Dialogue,I am an AI designed to diagnose based upon the symptoms you have.,
+1.3,Dialogue,![alt text](https://hybrid.chat/wp-content/uploads/2019/02/martin-brosy-758535-unsplash.jpg),
+1.4,Dialogue,Shall we get started?,
+1.5,Button,Let's Get started,2
+2.1,Text-NLP,"Alright. So, what it troubling you today? (example: Pain in head, back pain)",3
+,SendRequest-POST-https://api.infermedica.com/v2/parse,"{
+""headers"": {
+""App-Id"": ""<Insert your app ID here>"", 
+""App-Key"": ""<Insert your key here>"", 
+""Content-Type"": ""application/json""}, 
+""body"": {""text"": ""{{vars.NLP}}""},
+""save_to_var"": ""NLPdata""
+}",
+2.2,IF-NLPdata.body.mentions,,3
+2.3,Dialogue,I don't think I understand that. Kindly rephrase.,2
+3.1,Dialogue,Proceeding diagnosis for: {{vars.NLPdata.body.mentions.0.common_name}},
+3.2,Dialogue,"For proper diagnosis, I need a little more details.",
+3.3,Text-GenderJunk,Please select your gender,
+3.4,Button,Male,4
+3.5,Button,Female,5
+4.1,Dialogue,,6
+,SetVariable-Gender,male,
+5.1,Dialogue,,6
+,SetVariable-Gender,female,
+6.1,Number-age,And your age?,7
+7.1,Dialogue,,
+,SendRequest-POST-https://api.infermedica.com/v2/diagnosis,"{
+""headers"": 
+{
+""App-Id"": ""<Insert your app ID here>"", 
+""App-Key"": ""<Insert your Key here>"", 
+""Content-Type"": ""application/json""
+}, 
+""body"": 
+{
+""sex"": ""{{vars.Gender}}"",
+""age"": ""{{vars.age}}"",
+""evidence"": [{""id"": ""{{vars.NLPdata.body.mentions.0.id}}"", ""choice_id"": ""present"", ""initial"": true}],
+""extras"": 
+{
+          ""disable_groups"": true
+}
+},
+""save_to_var"": ""Diag1""
+}",
+7.2,Dialogue,{{vars.Diag1.body.question.text}},
+7.3,Button,Yes,8
+7.4,Button,No,9
+7.5,Button,Don't know,10
+8.1,Dialogue,,11
+,SetVariable-choice1,present,
+9.1,Dialogue,,11
+,SetVariable-choice1,absent,
+10.1,Dialogue,,11
+,SetVariable-choice1,unknown,
+11.1,Dialogue,,
+,SendRequest-POST-https://api.infermedica.com/v2/diagnosis,"{
+""headers"": 
+{
+""App-Id"": ""<Insert your App ID here>"", 
+""App-Key"": ""<Insert your App Key here>"", 
+""Content-Type"": ""application/json""
+}, 
+""body"": 
+{
+""sex"": ""{{vars.Gender}}"",
+""age"": ""{{vars.age}}"",
+""evidence"": 
+[
+{""id"": ""{{vars.NLPdata.body.mentions.0.id}}"", ""choice_id"": ""present"", ""initial"": true},
+{""id"": ""{{vars.Diag1.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice1}}"", ""initial"": true}
+],
+""extras"": 
+{
+          ""disable_groups"": true
+}
+},
+""save_to_var"": ""Diag2""
+}",
+11.2,Dialogue,{{vars.Diag2.body.question.text}},
+11.3,Button,Yes,12
+11.4,Button,No,13
+11.5,Button,Don't know,14
+12.1,Dialogue,,15
+,SetVariable-choice2,present,
+13.1,Dialogue,,15
+,SetVariable-choice2,absent,
+14.1,Dialogue,,15
+,SetVariable-choice2,unknown,
+15.1,Dialogue,,
+,SendRequest-POST-https://api.infermedica.com/v2/diagnosis,"{
+""headers"": 
+{
+""App-Id"": ""<Insert your App ID here>"", 
+""App-Key"": ""<Insert your App Key here>"", 
+""Content-Type"": ""application/json""
+}, 
+""body"": 
+{
+""sex"": ""{{vars.Gender}}"",
+""age"": ""{{vars.age}}"",
+""evidence"": 
+[
+{""id"": ""{{vars.NLPdata.body.mentions.0.id}}"", ""choice_id"": ""present"", ""initial"": true},
+{""id"": ""{{vars.Diag1.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice1}}"", ""initial"": true},
+{""id"": ""{{vars.Diag2.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice2}}"", ""initial"": true}
+],
+""extras"": 
+{
+          ""disable_groups"": true
+}
+},
+""save_to_var"": ""Diag3""
+}",
+15.2,Dialogue,{{vars.Diag3.body.question.text}},
+15.3,Button,Yes,16
+15.4,Button,No,17
+15.5,Button,Don't know,18
+16.1,Dialogue,,19
+,SetVariable-choice3,present,
+17.1,Dialogue,,19
+,SetVariable-choice3,absent,
+18.1,Dialogue,,19
+,SetVariable-choice3,unknown,
+19.1,Dialogue,,
+,SendRequest-POST-https://api.infermedica.com/v2/diagnosis,"{
+""headers"": 
+{
+""App-Id"": ""<Insert your App ID here>"", 
+""App-Key"": ""<Insert your App Key here>"", 
+""Content-Type"": ""application/json""
+}, 
+""body"": 
+{
+""sex"": ""{{vars.Gender}}"",
+""age"": ""{{vars.age}}"",
+""evidence"": 
+[
+{""id"": ""{{vars.NLPdata.body.mentions.0.id}}"", ""choice_id"": ""present"", ""initial"": true},
+{""id"": ""{{vars.Diag1.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice1}}"", ""initial"": true},
+{""id"": ""{{vars.Diag2.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice2}}"", ""initial"": true},
+{""id"": ""{{vars.Diag3.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice3}}"", ""initial"": true}
+],
+""extras"": 
+{
+          ""disable_groups"": true
+}
+},
+""save_to_var"": ""Diag4""
+}",
+19.2,Dialogue,{{vars.Diag4.body.question.text}},
+19.3,Button,Yes,20
+19.4,Button,No,21
+19.5,Button,Don't know,22
+20.1,Dialogue,,23
+,SetVariable-choice4,present,
+21.1,Dialogue,,23
+,SetVariable-choice4,absent,
+22.1,Dialogue,,23
+,SetVariable-choice4,unknown,
+23.1,Dialogue,,
+,SendRequest-POST-https://api.infermedica.com/v2/diagnosis,"{
+""headers"": 
+{
+""App-Id"": ""<Insert your App ID here>"", 
+""App-Key"": ""<Insert your App Key here>"", 
+""Content-Type"": ""application/json""
+}, 
+""body"": 
+{
+""sex"": ""{{vars.Gender}}"",
+""age"": ""{{vars.age}}"",
+""evidence"": 
+[
+{""id"": ""{{vars.NLPdata.body.mentions.0.id}}"", ""choice_id"": ""present"", ""initial"": true},
+{""id"": ""{{vars.Diag1.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice1}}"", ""initial"": true},
+{""id"": ""{{vars.Diag2.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice2}}"", ""initial"": true},
+{""id"": ""{{vars.Diag3.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice3}}"", ""initial"": true},
+{""id"": ""{{vars.Diag4.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice4}}"", ""initial"": true}
+],
+""extras"": 
+{
+          ""disable_groups"": true
+}
+},
+""save_to_var"": ""Diag5""
+}",
+23.2,Dialogue,{{vars.Diag5.body.question.text}},
+23.3,Button,Yes,24
+23.4,Button,No,25
+23.5,Button,Don't know,26
+24.1,Dialogue,,27
+,SetVariable-choice5,present,
+25.1,Dialogue,,27
+,SetVariable-choice5,absent,
+26.1,Dialogue,,27
+,SetVariable-choice5,unknown,
+27.1,Dialogue,,
+,SendRequest-POST-https://api.infermedica.com/v2/diagnosis,"{
+""headers"": 
+{
+""App-Id"": ""<Insert your App ID here>"", 
+""App-Key"": ""<Insert your App Key here>"", 
+""Content-Type"": ""application/json""
+}, 
+""body"": 
+{
+""sex"": ""{{vars.Gender}}"",
+""age"": ""{{vars.age}}"",
+""evidence"": 
+[
+{""id"": ""{{vars.NLPdata.body.mentions.0.id}}"", ""choice_id"": ""present"", ""initial"": true},
+{""id"": ""{{vars.Diag1.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice1}}"", ""initial"": true},
+{""id"": ""{{vars.Diag2.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice2}}"", ""initial"": true},
+{""id"": ""{{vars.Diag3.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice3}}"", ""initial"": true},
+{""id"": ""{{vars.Diag4.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice4}}"", ""initial"": true},
+{""id"": ""{{vars.Diag5.body.question.items.0.id}}"", ""choice_id"": ""{{vars.choice5}}"", ""initial"": true}
+],
+""extras"": 
+{
+          ""disable_groups"": true
+}
+},
+""save_to_var"": ""Diag6""
+}",
+,SetVariable-car_data,"[
+    {
+        ""id"": ""{{vars.Diag6.body.conditions.0.id}}"",
+        ""title"": ""{{#vars.Diag6.body.conditions.0.common_name}}{{vars.Diag6.body.conditions.0.common_name}}{{/vars.Diag6.body.conditions.0.common_name}}"",
+        ""desc"": ""Probability - {{vars.Diag6.body.conditions.0.probability}}"",
+        ""image"": ""https://images.unsplash.com/photo-1518791841217-8f162f1e1131""
+    },
+{
+        ""id"": ""{{vars.Diag6.body.conditions.0.id}}"",
+        ""title"": ""{{#vars.Diag6.body.conditions.0.common_name}}{{vars.Diag6.body.conditions.0.common_name}}{{/vars.Diag6.body.conditions.0.common_name}}"",
+        ""desc"": ""Probability - {{vars.Diag6.body.conditions.0.probability}}"",
+        ""image"": ""https://images.unsplash.com/photo-1518791841217-8f162f1e1131""
+    },
+{
+        ""id"": ""{{vars.Diag6.body.conditions.0.id}}"",
+        ""title"": ""{{#vars.Diag6.body.conditions.0.common_name}}{{vars.Diag6.body.conditions.0.common_name}}{{/vars.Diag6.body.conditions.0.common_name}}"",
+        ""desc"": ""Probability - {{vars.Diag6.body.conditions.0.probability}}"",
+        ""image"": ""https://images.unsplash.com/photo-1518791841217-8f162f1e1131""
+    }
+]",
+27.2,Dialogue,"Most probable symptom is<br /><b>{{vars.Diag6.body.conditions.0.common_name}}</b>
+<br />Confidence - <b>{{vars.Diag6.body.conditions.0.probability}}</b>",28
+28.1,Carousel,"{
+    ""source_var"": ""car_data"",
+    ""img_url"": ""image"",
+    ""title"": ""title"",
+    ""desc"": ""desc""
+}",
+28.2,Button,See a doctor,29
+29.1,Dialogue,"Before scheduling an appointment, I just need a couple of details",
+29.2,TextWidget-Name,May I have your name?,
+29.3,EmailWidget-Email,What is the best email to reach you?,
+29.4,Dialogue,Great. Thanks for the information {{vars.Name}},30
+30.1,EmbedWidget,"<iframe src=""https://calendly.com/ricky-25/15min/?name={{vars.Name}}&email={{vars.Email}}"" width=""100%"" height=""500px"" scrolling=""yes""></iframe>",
+30.2,Button,Done,32
+30.3,Button,Cancel,31
+30.4,Button,Quick Chat,33
+31.1,Dialogue,Okay. I look forward to see you again.,
+32.1,Dialogue,Thanks for scheduling this meeting. I look forward to talking to you.,
+33.1,Dialogue,HUMAN AGENT ENTERS HERE,
