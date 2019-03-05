@@ -12,6 +12,6 @@ A demo can be seen [here](https://14ua6.hybrid.chat/chat.html): https://14ua6.hy
 ## How to Deploy:
 1. Signup on Hybrid.Chat (Free signup). 
 2. Apply for API key from Infermedica (Free signup, takes 24 hours to approve account). 
-3. Replace App ID and Key in the spreadsheet. 
+3. Replace App ID and Key in the [spreadsheet](/MediBot%20-%20mediBot.csv).
 4. Host it on Google Spreadsheet. 
 5. Create a bot on Hybrid.Chat Bot builder and click Create Bot.
